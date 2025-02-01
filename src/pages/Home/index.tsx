@@ -1,4 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Play } from 'phosphor-react'
+import { useForm } from 'react-hook-form'
+import * as zod from 'zod'
+
 import {
   CountdownContainer,
   DurationMinutesInput,
@@ -9,10 +13,38 @@ import {
   TaskInput
 } from './styles'
 
+const newTaskFormValidationSchema = zod.object({
+  task: zod.string().min(1, 'Please name your activity'),
+  durationMinutes: zod.number().min(5).max(90),
+})
+
+// zod can infer type, which replaces
+// the need for an interface
+type NewTaskFormData = zod.infer<typeof newTaskFormValidationSchema>
+
 export function Home() {
+  const { register, handleSubmit, watch, reset } = useForm<NewTaskFormData>({
+    resolver: zodResolver(newTaskFormValidationSchema),
+    defaultValues: {
+      task: '',
+      durationMinutes: 0,
+    }
+  })
+
+  function handleNewTask(data: NewTaskFormData) {
+    console.log(data)
+    reset()
+  }
+
+  // Watch 'task' input to enable submit button
+  const task = watch('task')
+
   return (
     <HomeContainer>
-      <form action="">
+      <form
+        onSubmit={handleSubmit(handleNewTask)}
+        action=""
+      >
         <FormContainer>
           <label htmlFor="task">I will focus on</label>
           <TaskInput
@@ -20,6 +52,7 @@ export function Home() {
             id="task"
             placeholder="type activity name..."
             list="task-suggestions"
+            {...register('task')}
           />
 
           <datalist id="task-suggestions">
@@ -37,6 +70,10 @@ export function Home() {
             step={5}
             min={5}
             max={90}
+            {...register(
+              'durationMinutes',
+              { valueAsNumber: true }
+            )}
           />
 
           <span>minutes.</span>
@@ -52,7 +89,7 @@ export function Home() {
 
         <StartCountdownButton
           type="submit"
-          disabled
+          disabled={!task}
         >
           <Play size={24} />
           Start
