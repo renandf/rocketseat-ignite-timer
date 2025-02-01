@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { differenceInSeconds } from 'date-fns'
 import { Play } from 'phosphor-react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 
@@ -22,7 +24,18 @@ const newTaskFormValidationSchema = zod.object({
 // the need for an interface
 type NewTaskFormData = zod.infer<typeof newTaskFormValidationSchema>
 
+interface Task {
+  id: string;
+  task: string;
+  durationMinutes: number;
+  startDate: Date;
+}
+
 export function Home() {
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+  const [secondsPassed, setSecondsPassed] = useState(0)
+
   const { register, handleSubmit, watch, reset } = useForm<NewTaskFormData>({
     resolver: zodResolver(newTaskFormValidationSchema),
     defaultValues: {
@@ -31,10 +44,40 @@ export function Home() {
     }
   })
 
+  const activeTask = tasks.find(task => task.id === activeTaskId)
+
+  useEffect(() => {
+    if (activeTask) {
+      setInterval(() => {
+        setSecondsPassed(
+          differenceInSeconds(new Date(), activeTask.startDate)
+        )
+      }, 1000)
+    }
+  }, [activeTask])
+
   function handleNewTask(data: NewTaskFormData) {
-    console.log(data)
+    const newTask: Task = {
+      id: String(new Date().getTime()),
+      task: data.task,
+      durationMinutes: data.durationMinutes,
+      startDate: new Date(),
+    }
+
+    setTasks(state => [...state, newTask])
+    setActiveTaskId(newTask.id)
+
     reset()
   }
+
+  const taskSeconds = activeTask ? activeTask.durationMinutes * 60 : 0
+  const currentSeconds = activeTask ? taskSeconds - secondsPassed : 0
+
+  const minutesLeft = Math.floor(currentSeconds / 60)
+  const secondsLeft = currentSeconds % 60
+
+  const minutesLeftStr = String(minutesLeft).padStart(2, '0')
+  const secondsLeftStr = String(secondsLeft).padStart(2, '0')
 
   // Watch 'task' input to enable submit button
   const task = watch('task')
@@ -80,11 +123,11 @@ export function Home() {
         </FormContainer>
 
         <CountdownContainer>
-          <span>0</span>
-          <span>0</span>
+          <span>{minutesLeftStr[0]}</span>
+          <span>{minutesLeftStr[1]}</span>
           <Separator>:</Separator>
-          <span>0</span>
-          <span>0</span>
+          <span>{secondsLeftStr[0]}</span>
+          <span>{secondsLeftStr[1]}</span>
         </CountdownContainer>
 
         <StartCountdownButton
