@@ -1,17 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { differenceInSeconds } from 'date-fns'
-import { Play } from 'phosphor-react'
+import { HandPalm, Play } from 'phosphor-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 
 import {
+  ActiveTaskTitle,
   CountdownContainer,
   DurationMinutesInput,
   FormContainer,
   HomeContainer,
   Separator,
   StartCountdownButton,
+  StopCountdownButton,
   TaskInput
 } from './styles'
 
@@ -29,6 +31,7 @@ interface Task {
   task: string;
   durationMinutes: number;
   startDate: Date;
+  stopDate?: Date;
 }
 
 export function Home() {
@@ -47,12 +50,18 @@ export function Home() {
   const activeTask = tasks.find(task => task.id === activeTaskId)
 
   useEffect(() => {
+    let interval: number
+
     if (activeTask) {
-      setInterval(() => {
+      interval = setInterval(() => {
         setSecondsPassed(
           differenceInSeconds(new Date(), activeTask.startDate)
         )
       }, 1000)
+    }
+
+    return () => {
+      clearInterval(interval)
     }
   }, [activeTask])
 
@@ -66,8 +75,21 @@ export function Home() {
 
     setTasks(state => [...state, newTask])
     setActiveTaskId(newTask.id)
+    setSecondsPassed(0)
 
     reset()
+  }
+
+  function handleStopTask() {
+    setTasks(tasks.map(task => {
+      if (task.id === activeTaskId) {
+        return { ...task, stopDate: new Date() }
+      } else {
+        return task
+      }
+    }))
+    
+    setActiveTaskId(null)
   }
 
   const taskSeconds = activeTask ? activeTask.durationMinutes * 60 : 0
@@ -79,6 +101,14 @@ export function Home() {
   const minutesLeftStr = String(minutesLeft).padStart(2, '0')
   const secondsLeftStr = String(secondsLeft).padStart(2, '0')
 
+  useEffect(() => {
+    if (activeTask) {
+      document.title = `${minutesLeftStr}:${secondsLeftStr}`
+    } else {
+      document.title = 'Ignite Timer'
+    }
+  }, [activeTask, minutesLeftStr, secondsLeftStr])
+
   // Watch 'task' input to enable submit button
   const task = watch('task')
 
@@ -88,39 +118,48 @@ export function Home() {
         onSubmit={handleSubmit(handleNewTask)}
         action=""
       >
-        <FormContainer>
-          <label htmlFor="task">I will focus on</label>
-          <TaskInput
-            type="text"
-            id="task"
-            placeholder="type activity name..."
-            list="task-suggestions"
-            {...register('task')}
-          />
+        { activeTask ? (
+          <ActiveTaskTitle>
+            <span>Focusing on:</span>
+            <h2>{activeTask.task}</h2>
+          </ActiveTaskTitle>
+        ) : (
+          <FormContainer>
+            <label htmlFor="task">I will focus on</label>
+            <TaskInput
+              type="text"
+              id="task"
+              placeholder="type activity name..."
+              list="task-suggestions"
+              disabled={!!activeTask}
+              {...register('task')}
+            />
 
-          <datalist id="task-suggestions">
-            <option value="Project example 1" />
-            <option value="Project example 2" />
-            <option value="Project example 3" />
-            <option value="Another example" />
-          </datalist>
+            <datalist id="task-suggestions">
+              <option value="Project example 1" />
+              <option value="Project example 2" />
+              <option value="Project example 3" />
+              <option value="Another example" />
+            </datalist>
 
-          <label htmlFor="durationMinutes">for</label>
-          <DurationMinutesInput
-            type="number"
-            id="durationMinutes"
-            placeholder="00"
-            step={5}
-            min={5}
-            max={90}
-            {...register(
-              'durationMinutes',
-              { valueAsNumber: true }
-            )}
-          />
+            <label htmlFor="durationMinutes">for</label>
+            <DurationMinutesInput
+              type="number"
+              id="durationMinutes"
+              placeholder="00"
+              step={5}
+              min={5}
+              max={90}
+              disabled={!!activeTask}
+              {...register(
+                'durationMinutes',
+                { valueAsNumber: true }
+              )}
+            />
 
-          <span>minutes.</span>
-        </FormContainer>
+            <span>minutes.</span>
+          </FormContainer>
+        )}
 
         <CountdownContainer>
           <span>{minutesLeftStr[0]}</span>
@@ -130,13 +169,23 @@ export function Home() {
           <span>{secondsLeftStr[1]}</span>
         </CountdownContainer>
 
-        <StartCountdownButton
-          type="submit"
-          disabled={!task}
-        >
-          <Play size={24} />
-          Start
-        </StartCountdownButton>
+        { activeTask ? (
+          <StopCountdownButton
+            type="button"
+            onClick={handleStopTask}
+          >
+            <HandPalm size={24} />
+            Stop
+          </StopCountdownButton>
+        ) : (
+          <StartCountdownButton
+            type="submit"
+            disabled={!task}
+          >
+            <Play size={24} />
+            Start
+          </StartCountdownButton>
+        )}
       </form>
     </HomeContainer>
   )

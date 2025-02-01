@@ -38,6 +38,8 @@ const BaseInput = styled.input`
   padding: 0 .5rem;
   color: ${props => props.theme['green-300']};
   
+  transition: border-color .2s;
+  
   &::placeholder {
     color: ${props => props.theme['gray-500']};
   }
@@ -46,8 +48,6 @@ const BaseInput = styled.input`
     box-shadow: none;
     border-color: ${props => props.theme['green-500']};
   }
-
-  transition: border-color .2s;
 `
 
 export const TaskInput = styled(BaseInput)`
@@ -61,6 +61,20 @@ export const TaskInput = styled(BaseInput)`
 
 export const DurationMinutesInput = styled(BaseInput)`
   width: 4rem;
+`
+
+export const ActiveTaskTitle = styled.div`
+  width: 100%;
+
+  h2 {
+    color: ${props => props.theme['green-300']};
+  }
+
+  span {
+    font-size: .875rem;
+    font-style: normal;
+    color: ${props => props.theme['gray-500']};
+  }
 `
 
 export const CountdownContainer = styled.div`
@@ -89,7 +103,7 @@ export const Separator = styled.div`
   justify-content: center;
 `
 
-export const StartCountdownButton = styled.button`
+const BaseCountdownButton = styled.button`
   width: 100%;
   border: 0;
   padding: 1rem;
@@ -101,8 +115,7 @@ export const StartCountdownButton = styled.button`
   gap: .5rem;
   font-weight: bold;
   cursor: pointer;
-
-  background-color: ${props => props.theme['green-500']};
+  
   color: ${props => props.theme['gray-100']};
 
   transition: background-color .2s, color .2s;
@@ -112,8 +125,20 @@ export const StartCountdownButton = styled.button`
     background-color: ${props => props.theme['gray-700']};
     color: ${props => props.theme['gray-500']};
   }
+`
+
+export const StartCountdownButton = styled(BaseCountdownButton)`
+  background-color: ${props => props.theme['green-500']};
 
   &:not(:disabled):hover {
     background-color: ${props => props.theme['green-700']};
+  }
+`
+
+export const StopCountdownButton = styled(BaseCountdownButton)`
+  background-color: ${props => props.theme['red-500']};
+
+  &:not(:disabled):hover {
+    background-color: ${props => props.theme['red-700']};
   }
 `
