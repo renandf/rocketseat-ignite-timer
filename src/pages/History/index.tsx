@@ -1,6 +1,7 @@
-import { useContext } from "react";
-import { TasksContext } from "../../contexts/TasksContext";
-import { HistoryContainer, HistoryList, Status } from "./styles";
+import { formatDistanceToNow } from 'date-fns'
+import { useContext } from 'react'
+import { TasksContext } from '../../contexts/TasksContext'
+import { HistoryContainer, HistoryList, Status } from './styles'
 
 export function History() {
   const { tasks } = useContext(TasksContext)
@@ -21,78 +22,43 @@ export function History() {
           </thead>
 
           <tbody>
-            <tr>
-              <td>Example task 1</td>
-              <td>20 minutes</td>
-              <td>2 months ago</td>
-              <td>
-                <Status 
-                  statusColor="green"
-                >
-                  Completed
-                </Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Example task 1</td>
-              <td>20 minutes</td>
-              <td>2 months ago</td>
-              <td>
-                <Status 
-                  statusColor="green"
-                >
-                  Completed
-                </Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Example task 1</td>
-              <td>20 minutes</td>
-              <td>2 months ago</td>
-              <td>
-                <Status 
-                  statusColor="green"
-                >
-                  Completed
-                </Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Example task 1</td>
-              <td>20 minutes</td>
-              <td>2 months ago</td>
-              <td>
-                <Status 
-                  statusColor="green"
-                >
-                  Completed
-                </Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Example task 1</td>
-              <td>20 minutes</td>
-              <td>2 months ago</td>
-              <td>
-                <Status 
-                  statusColor="green"
-                >
-                  Completed
-                </Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Example task 1</td>
-              <td>20 minutes</td>
-              <td>2 months ago</td>
-              <td>
-                <Status 
-                  statusColor="green"
-                >
-                  Completed
-                </Status>
-              </td>
-            </tr>
+            {tasks.map(task => {
+              return (
+                <tr key={task.id}>
+                  <td>{task.task}</td>
+                  <td>{task.durationMinutes} minutes</td>
+                  <td>
+                    {formatDistanceToNow(
+                      task.startDate,
+                      {addSuffix: true}
+                    )}
+                  </td>
+                  <td>
+                    {task.finishDate && (
+                      <Status 
+                        statusColor="green"
+                      >
+                        Completed
+                      </Status>
+                    )}
+                    {task.stopDate && (
+                      <Status 
+                        statusColor="red"
+                      >
+                        Stopped
+                      </Status>
+                    )}
+                    {(!task.finishDate && !task.stopDate) && (
+                      <Status 
+                        statusColor="yellow"
+                      >
+                        In progress
+                      </Status>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </HistoryList>

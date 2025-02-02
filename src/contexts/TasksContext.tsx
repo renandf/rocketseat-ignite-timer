@@ -63,8 +63,6 @@ export function TasksContextProvider({ children }: TasksContextProviderProps) {
     setTasks(state => [...state, newTask])
     setActiveTaskId(newTask.id)
     setSecondsPassed(0)
-
-    // reset()
   }
 
   function stopCurrentTask() {

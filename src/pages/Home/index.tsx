@@ -40,7 +40,12 @@ export function Home() {
     }
   })
 
-  const { handleSubmit, watch } = newTaskForm
+  const { handleSubmit, watch, reset } = newTaskForm
+
+  function handleCreateNewTask(data: NewTaskFormData) {
+    createNewTask(data)
+    reset()
+  }
 
   // Watch 'task' input to enable submit button
   const task = watch('task')
@@ -48,7 +53,7 @@ export function Home() {
   return (
     <HomeContainer>
       <form
-        onSubmit={handleSubmit(createNewTask)}
+        onSubmit={handleSubmit(handleCreateNewTask)}
         action=""
       >
         
