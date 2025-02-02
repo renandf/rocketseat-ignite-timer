@@ -32,6 +32,7 @@ interface Task {
   durationMinutes: number;
   startDate: Date;
   stopDate?: Date;
+  finishDate?: Date;
 }
 
 export function Home() {
@@ -48,22 +49,40 @@ export function Home() {
   })
 
   const activeTask = tasks.find(task => task.id === activeTaskId)
+  const taskSeconds = activeTask ? activeTask.durationMinutes * 60 : 0
 
   useEffect(() => {
     let interval: number
 
     if (activeTask) {
       interval = setInterval(() => {
-        setSecondsPassed(
-          differenceInSeconds(new Date(), activeTask.startDate)
+        const secondsDifference = differenceInSeconds(
+          new Date(),
+          activeTask.startDate
         )
+
+        if (secondsDifference >= taskSeconds) {
+          setTasks(state => state.map(task => {
+            if (task.id === activeTaskId) {
+              return { ...task, finishDate: new Date() }
+            } else {
+              return task
+            }
+          }))
+
+          setSecondsPassed(taskSeconds)
+
+          clearInterval(interval)
+        } else {
+          setSecondsPassed(secondsDifference)
+        }
       }, 1000)
     }
 
     return () => {
       clearInterval(interval)
     }
-  }, [activeTask])
+  }, [activeTask, activeTaskId, taskSeconds])
 
   function handleNewTask(data: NewTaskFormData) {
     const newTask: Task = {
@@ -81,7 +100,7 @@ export function Home() {
   }
 
   function handleStopTask() {
-    setTasks(tasks.map(task => {
+    setTasks(state => state.map(task => {
       if (task.id === activeTaskId) {
         return { ...task, stopDate: new Date() }
       } else {
@@ -92,7 +111,6 @@ export function Home() {
     setActiveTaskId(null)
   }
 
-  const taskSeconds = activeTask ? activeTask.durationMinutes * 60 : 0
   const currentSeconds = activeTask ? taskSeconds - secondsPassed : 0
 
   const minutesLeft = Math.floor(currentSeconds / 60)
