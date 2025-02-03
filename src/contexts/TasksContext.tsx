@@ -1,17 +1,9 @@
-import { createContext, ReactNode, useState } from 'react';
+import { createContext, ReactNode, useReducer, useState } from 'react';
+import { ActionTypes, Task, tasksReducer } from '../reducers/tasks';
 
 interface CreateTaskData {
   task: string;
   durationMinutes: number;
-}
-
-interface Task {
-  id: string;
-  task: string;
-  durationMinutes: number;
-  startDate: Date;
-  stopDate?: Date;
-  finishDate?: Date;
 }
 
 interface TasksContextType {
@@ -31,10 +23,18 @@ interface TasksContextProviderProps {
   children: ReactNode
 }
 
-export function TasksContextProvider({ children }: TasksContextProviderProps) {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+export function TasksContextProvider({
+  children
+}: TasksContextProviderProps) {
+  const [tasksState, dispatch] = useReducer(tasksReducer, {
+      tasks: [],
+      activeTaskId: null,
+    },
+  )
+
   const [secondsPassed, setSecondsPassed] = useState(0)
+  
+  const { tasks, activeTaskId } = tasksState
 
   const activeTask = tasks.find(task => task.id === activeTaskId)
 
@@ -43,13 +43,12 @@ export function TasksContextProvider({ children }: TasksContextProviderProps) {
   }
 
   function markCurrentTaskAsFinished() {
-    setTasks(state => state.map(task => {
-      if (task.id === activeTaskId) {
-        return { ...task, finishDate: new Date() }
-      } else {
-        return task
-      }
-    }))
+    dispatch({
+      type: ActionTypes.MARK_CURRENT_TASK_AS_FINISHED,
+      payload: {
+        activeTaskId,
+      },
+    })
   }
 
   function createNewTask(data: CreateTaskData) {
@@ -60,21 +59,23 @@ export function TasksContextProvider({ children }: TasksContextProviderProps) {
       startDate: new Date(),
     }
 
-    setTasks(state => [...state, newTask])
-    setActiveTaskId(newTask.id)
+    dispatch({
+      type: ActionTypes.ADD_NEW_TASK,
+      payload: {
+        newTask,
+      },
+    })
+
     setSecondsPassed(0)
   }
 
   function stopCurrentTask() {
-    setTasks(state => state.map(task => {
-      if (task.id === activeTaskId) {
-        return { ...task, stopDate: new Date() }
-      } else {
-        return task
-      }
-    }))
-    
-    setActiveTaskId(null)
+    dispatch({
+      type: ActionTypes.STOP_CURRENT_TASK,
+      payload: {
+        activeTaskId,
+      },
+    })
   }
 
   return (
