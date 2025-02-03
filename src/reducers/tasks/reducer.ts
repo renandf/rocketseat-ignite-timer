@@ -1,3 +1,5 @@
+import { ActionTypes } from "./actions";
+
 export interface Task {
   id: string;
   task: string;
@@ -12,13 +14,7 @@ interface TasksState {
   activeTaskId: string | null;
 }
 
-export enum ActionTypes {
-  ADD_NEW_TASK = 'ADD_NEW_TASK',
-  STOP_CURRENT_TASK = 'STOP_CURRENT_TASK',
-  MARK_CURRENT_TASK_AS_FINISHED = 'MARK_CURRENT_TASK_AS_FINISHED',
-}
-
-export function tasksReducer(state: TasksState, action: any) {
+export function tasksReducer(state: TasksState, action) {
   switch(action.type) {
     case ActionTypes.ADD_NEW_TASK:
       return {

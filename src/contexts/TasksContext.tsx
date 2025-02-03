@@ -1,7 +1,17 @@
-import { createContext, ReactNode, useReducer, useState } from 'react';
-import { ActionTypes, Task, tasksReducer } from '../reducers/tasks';
+import {
+  createContext,
+  ReactNode,
+  useReducer,
+  useState
+} from 'react';
+import {
+  addNewTaskAction,
+  markCurrentTaskAsFinishedAction,
+  stopCurrentTaskAction
+} from '../reducers/tasks/actions';
+import { Task, tasksReducer } from '../reducers/tasks/reducer';
 
-interface CreateTaskData {
+interface AddTaskData {
   task: string;
   durationMinutes: number;
 }
@@ -13,7 +23,7 @@ interface TasksContextType {
   secondsPassed: number
   markCurrentTaskAsFinished: () => void
   setNumberOfSecondsPassed: (seconds: number) => void
-  createNewTask: (data: CreateTaskData) => void
+  addNewTask: (data: AddTaskData) => void
   stopCurrentTask: () => void
 }
 
@@ -43,15 +53,10 @@ export function TasksContextProvider({
   }
 
   function markCurrentTaskAsFinished() {
-    dispatch({
-      type: ActionTypes.MARK_CURRENT_TASK_AS_FINISHED,
-      payload: {
-        activeTaskId,
-      },
-    })
+    dispatch(markCurrentTaskAsFinishedAction())
   }
 
-  function createNewTask(data: CreateTaskData) {
+  function addNewTask(data: AddTaskData) {
     const newTask: Task = {
       id: String(new Date().getTime()),
       task: data.task,
@@ -59,23 +64,14 @@ export function TasksContextProvider({
       startDate: new Date(),
     }
 
-    dispatch({
-      type: ActionTypes.ADD_NEW_TASK,
-      payload: {
-        newTask,
-      },
-    })
+    dispatch(addNewTaskAction(newTask))
 
     setSecondsPassed(0)
   }
 
   function stopCurrentTask() {
-    dispatch({
-      type: ActionTypes.STOP_CURRENT_TASK,
-      payload: {
-        activeTaskId,
-      },
-    })
+    console.log(activeTaskId)
+    dispatch(stopCurrentTaskAction())
   }
 
   return (
@@ -86,7 +82,7 @@ export function TasksContextProvider({
       secondsPassed,
       markCurrentTaskAsFinished,
       setNumberOfSecondsPassed,
-      createNewTask,
+      addNewTask,
       stopCurrentTask
     }}>
       { children }

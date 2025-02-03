@@ -28,7 +28,7 @@ type NewTaskFormData = zod.infer<typeof newTaskFormValidationSchema>
 export function Home() {
   const {
     activeTask,
-    createNewTask,
+    addNewTask,
     stopCurrentTask
   } = useContext(TasksContext)
 
@@ -42,8 +42,8 @@ export function Home() {
 
   const { handleSubmit, watch, reset } = newTaskForm
 
-  function handleCreateNewTask(data: NewTaskFormData) {
-    createNewTask(data)
+  function handleAddNewTask(data: NewTaskFormData) {
+    addNewTask(data)
     reset()
   }
 
@@ -53,7 +53,7 @@ export function Home() {
   return (
     <HomeContainer>
       <form
-        onSubmit={handleSubmit(handleCreateNewTask)}
+        onSubmit={handleSubmit(handleAddNewTask)}
         action=""
       >
         
