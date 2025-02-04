@@ -14,6 +14,19 @@ interface TasksState {
   activeTaskId: string | null;
 }
 
+// type ActionAddTask = {
+//   type: ActionTypes.ADD_NEW_TASK;
+//   payload: { newTask: Task }
+// }
+// type ActionMarkAsFinished = {
+//   type: ActionTypes.MARK_CURRENT_TASK_AS_FINISHED
+// }
+// type ActionStopTask = {
+//   type: ActionTypes.STOP_CURRENT_TASK
+// }
+
+// type TasksReducerActions = ActionAddTask | ActionMarkAsFinished | ActionStopTask
+
 export function tasksReducer(state: TasksState, action: any) {
   switch(action.type) {
     case ActionTypes.ADD_NEW_TASK:
