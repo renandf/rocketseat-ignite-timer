@@ -1,6 +1,8 @@
+import { differenceInSeconds } from 'date-fns';
 import {
   createContext,
   ReactNode,
+  useEffect,
   useReducer,
   useState
 } from 'react';
@@ -37,16 +39,38 @@ export function TasksContextProvider({
   children
 }: TasksContextProviderProps) {
   const [tasksState, dispatch] = useReducer(tasksReducer, {
-      tasks: [],
-      activeTaskId: null,
-    },
-  )
+    tasks: [],
+    activeTaskId: null,
+  },
+  (initialState) => {
+    const storedStateAsJSON = localStorage.getItem(
+      '@ignite-timer:tasks-state-1.0.0'
+    )
 
-  const [secondsPassed, setSecondsPassed] = useState(0)
-  
+    if (storedStateAsJSON) {
+      return JSON.parse(storedStateAsJSON)
+    }
+
+    return initialState
+  })
+
   const { tasks, activeTaskId } = tasksState
 
   const activeTask = tasks.find(task => task.id === activeTaskId)
+
+  const [secondsPassed, setSecondsPassed] = useState(() => {
+    if (activeTask) {
+      return differenceInSeconds(new Date(), new Date(activeTask.startDate))
+    }
+    
+    return 0
+  })
+
+  useEffect(() => {
+    const stateJSON = JSON.stringify(tasksState)
+
+    localStorage.setItem('@ignite-timer:tasks-state-1.0.0', stateJSON)
+  }, [tasksState])
 
   function setNumberOfSecondsPassed(seconds: number) {
     setSecondsPassed(seconds)

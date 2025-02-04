@@ -14,7 +14,7 @@ interface TasksState {
   activeTaskId: string | null;
 }
 
-export function tasksReducer(state: TasksState, action) {
+export function tasksReducer(state: TasksState, action: any) {
   switch(action.type) {
     case ActionTypes.ADD_NEW_TASK:
       return {
