@@ -29,7 +29,7 @@ export function History() {
                   <td>{task.durationMinutes} minutes</td>
                   <td>
                     {formatDistanceToNow(
-                      task.startDate,
+                      new Date(task.startDate),
                       {addSuffix: true}
                     )}
                   </td>
