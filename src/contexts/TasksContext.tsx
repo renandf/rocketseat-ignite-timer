@@ -94,7 +94,6 @@ export function TasksContextProvider({
   }
 
   function stopCurrentTask() {
-    console.log(activeTaskId)
     dispatch(stopCurrentTaskAction())
   }
 
