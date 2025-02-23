@@ -14,26 +14,23 @@ interface TasksState {
   activeTaskId: string | null;
 }
 
-// type ActionAddTask = {
-//   type: ActionTypes.ADD_NEW_TASK;
-//   payload: { newTask: Task }
-// }
-// type ActionMarkAsFinished = {
-//   type: ActionTypes.MARK_CURRENT_TASK_AS_FINISHED
-// }
-// type ActionStopTask = {
-//   type: ActionTypes.STOP_CURRENT_TASK
-// }
+type TasksActions = {
+  type:
+    | ActionTypes.ADD_NEW_TASK
+    | ActionTypes.MARK_CURRENT_TASK_AS_FINISHED
+    | ActionTypes.STOP_CURRENT_TASK
+  payload?: {
+    newTask: Task
+  }
+}
 
-// type TasksReducerActions = ActionAddTask | ActionMarkAsFinished | ActionStopTask
-
-export function tasksReducer(state: TasksState, action: any) {
+export function tasksReducer(state: TasksState, action: TasksActions) {
   switch(action.type) {
     case ActionTypes.ADD_NEW_TASK:
       return {
         ...state, 
-        tasks: [...state.tasks, action.payload.newTask],
-        activeTaskId: action.payload.newTask.id,
+        tasks: [...state.tasks, action.payload!.newTask],
+        activeTaskId: action.payload!.newTask.id,
       }
 
     case ActionTypes.STOP_CURRENT_TASK:
